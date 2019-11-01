@@ -2,3 +2,4 @@ click >=7
 ocrd >= 1.0.0
 pyyaml
 requests
+libsaas

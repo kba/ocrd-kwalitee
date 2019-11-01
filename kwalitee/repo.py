@@ -1,9 +1,11 @@
 from pathlib import Path
 import json
+from os import environ
 from subprocess import run, PIPE
 from shlex import split as X
 from ocrd_utils import pushd_popd, getLogger
 import requests as R
+from libsaas.services import github
 
 LOG = getLogger('kwalitee.repo')
 
@@ -45,6 +47,13 @@ class Repo():
             ret['url'] = self._run('git config --get remote.origin.url').stdout
             ret['latest_tag'] = self._run('git describe --abbrev=0 --tags').stdout
         return ret
+
+    def get_github_stats(self):
+        ret = {}
+        if 'GITHUB_TOKEN' not in environ:
+            raise Exception("Environment variable GITHUB_TOKEN must be set")
+        gh = github.GitHub(environ['GITHUB_TOKEN'])
+
 
     def get_file_contents(self):
         ret = {}
