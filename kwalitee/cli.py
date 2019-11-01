@@ -75,3 +75,14 @@ def generate_json(ctx):
         ret.append(repo.to_json())
         #  print('%s %s -> %s' % (repo.path.is_dir(), repo.url, repo.path))
     print(json.dumps(ret, indent=4, sort_keys=True))
+
+@cli.command('venv', help='''
+
+    Install repos to venv
+''')
+@pass_ctx
+def venv(ctx):
+    _check_cloned(ctx)
+    for repo in ctx.repos:
+        LOG.info("%s: installing to venv" % repo)
+        repo.install_to_venv()

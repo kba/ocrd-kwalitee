@@ -2,6 +2,8 @@ from pathlib import Path
 import json
 from subprocess import run, PIPE
 from shlex import split as X
+from tempfile import mkdtemp
+
 from ocrd_utils import pushd_popd, getLogger
 import requests as R
 
@@ -92,6 +94,22 @@ class Repo():
 
     def _run(self, cmd, **kwargs):
         result = run(X(cmd), stdout=PIPE, encoding='utf-8', **kwargs)
+        LOG.info('%s' % cmd)
         if result.stdout:
             result.stdout = result.stdout.strip()
         return result
+
+    def _run_in_venv(self, venv_dir, cmd, **kwargs):
+        cmd = '. %s/bin/activate; %s;' % (venv_dir, cmd)
+        LOG.info('$ %s' % cmd)
+        result = run(cmd, stdout=PIPE, encoding='utf-8', shell=True, **kwargs)
+        if result.stdout:
+            result.stdout = result.stdout.strip()
+        return result
+
+    def install_to_venv(self, venv_dir=None):
+        if not venv_dir:
+            venv_dir = mkdtemp(prefix='ocrd-kwalitee-venv-')
+            self._run('python -mvenv %s' % (venv_dir))
+        self._run_in_venv(venv_dir, 'pip install .')
+        return venv_dir
